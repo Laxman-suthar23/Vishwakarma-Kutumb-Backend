@@ -1,0 +1,277 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  member
+  village_admin
+  super_admin
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
+enum NotificationCategory {
+  announcement
+  event
+  emergency
+  marriage
+  condolence
+  business
+  general
+}
+
+enum NotificationPriority {
+  low
+  normal
+  high
+}
+
+enum AdProduct {
+  community_featured
+  village_featured
+  community_listing
+}
+
+enum AdStatus {
+  draft
+  pending_payment
+  pending_approval
+  scheduled
+  live
+  expired
+  rejected
+}
+
+enum PaymentStatus {
+  success
+  pending
+  failed
+  refunded
+}
+
+enum PaymentMethod {
+  UPI
+  Card
+  Netbanking
+}
+
+/// A single account. `role` drives which app experience (member / village
+/// admin / super admin) the client shows — see PRODUCT_BIBLE.md §5.
+model User {
+  id            String    @id @default(cuid())
+  phone         String    @unique
+  name          String
+  role          UserRole  @default(member)
+  active        Boolean   @default(true)
+  villageId     String?
+  village       Village?  @relation(fields: [villageId], references: [id])
+  familyId      String?
+  family        Family?   @relation(fields: [familyId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  otpCodes      OtpCode[]
+  auditLogs     AuditLog[]
+}
+
+/// Short-lived OTP codes for phone login. Soft-deleted rows are never
+/// created here — expired codes are simply ignored by the auth service,
+/// consistent with the bible's "Soft Delete" security principle elsewhere.
+model OtpCode {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  expiresAt DateTime
+  consumedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
+
+model Village {
+  id               String    @id @default(cuid())
+  name             String
+  nameLocal        String?
+  district         String
+  state            String
+  establishedYear  Int?
+  adminName        String?
+  description      String?
+  coverImageUrl    String?
+  memberCount      Int       @default(0)
+  familyCount      Int       @default(0)
+  active           Boolean   @default(true)
+  deletedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  families         Family[]
+  members          Member[]
+  users            User[]
+  notifications    Notification[]
+  feedPosts        FeedPost[]
+  advertisements   Advertisement[]
+}
+
+model Family {
+  id           String    @id @default(cuid())
+  villageId    String
+  village      Village   @relation(fields: [villageId], references: [id])
+  surname      String
+  address      String?
+  photoUrl     String?
+  headMemberId String?
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  members      Member[]
+  users        User[]
+
+  @@index([villageId])
+}
+
+model Member {
+  id          String    @id @default(cuid())
+  familyId    String
+  family      Family    @relation(fields: [familyId], references: [id])
+  villageId   String
+  village     Village   @relation(fields: [villageId], references: [id])
+  name        String
+  gender      Gender
+  age         Int?
+  relation    String
+  occupation  String?
+  phone       String?
+  photoUrl    String?
+  isFamilyHead Boolean  @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([familyId])
+  @@index([villageId])
+}
+
+model Notification {
+  id         String                @id @default(cuid())
+  category   NotificationCategory
+  title      String
+  body       String
+  priority   NotificationPriority  @default(normal)
+  villageId  String?
+  village    Village?              @relation(fields: [villageId], references: [id])
+  scheduledFor DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime              @default(now())
+
+  reads      NotificationRead[]
+}
+
+/// Per-user read state, so "read" isn't a single shared boolean once this
+/// is backed by a real multi-user database.
+model NotificationRead {
+  id             String       @id @default(cuid())
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id])
+  userId         String
+  readAt         DateTime     @default(now())
+
+  @@unique([notificationId, userId])
+}
+
+model FeedPost {
+  id            String   @id @default(cuid())
+  authorName    String
+  authorAvatarUrl String?
+  villageId     String?
+  village       Village? @relation(fields: [villageId], references: [id])
+  content       String
+  imageUrl      String?
+  likeCount     Int      @default(0)
+  commentCount  Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  likes         FeedLike[]
+}
+
+model FeedLike {
+  id     String   @id @default(cuid())
+  postId String
+  post   FeedPost @relation(fields: [postId], references: [id])
+  userId String
+
+  @@unique([postId, userId])
+}
+
+model Advertisement {
+  id           String    @id @default(cuid())
+  title        String
+  businessName String
+  product      AdProduct
+  status       AdStatus  @default(draft)
+  imageUrl     String?
+  villageId    String?
+  village      Village?  @relation(fields: [villageId], references: [id])
+  price        Int
+  startDate    DateTime?
+  endDate      DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  payments     Payment[]
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  adId            String
+  ad              Advertisement @relation(fields: [adId], references: [id])
+  businessName    String
+  amount          Int
+  method          PaymentMethod
+  status          PaymentStatus
+  razorpayOrderId String?
+  razorpayPaymentId String?
+  createdAt       DateTime      @default(now())
+}
+
+model AdPricing {
+  product      AdProduct @id
+  label        String
+  price        Int
+  durationDays Int
+}
+
+model PlatformSettings {
+  id                      Int     @id @default(1)
+  maintenanceMode         Boolean @default(false)
+  newRegistrationsEnabled Boolean @default(true)
+  otpRequiredForLogin     Boolean @default(true)
+  adAutoApproval          Boolean @default(false)
+  supportEmail            String  @default("support@vishwakarmakutumb.example.com")
+}
+
+/// Append-only audit trail per the bible's security principles.
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+}
