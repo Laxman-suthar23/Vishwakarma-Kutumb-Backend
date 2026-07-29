@@ -8,6 +8,7 @@ export class CreateAdDto {
   @IsOptional() @IsString() villageId?: string;
   @IsInt() @Min(0) price: number;
   @IsOptional() @IsString() imageUrl?: string;
+  @IsOptional() @IsString() socialUrl?: string;
 }
 
 export class UpdateAdStatusDto {

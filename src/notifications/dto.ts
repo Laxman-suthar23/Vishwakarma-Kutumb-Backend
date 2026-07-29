@@ -8,3 +8,10 @@ export class CreateNotificationDto {
   @IsOptional() @IsString() villageId?: string;
   @IsEnum(NotificationPriority) priority: NotificationPriority;
 }
+
+export class UpdateNotificationDto {
+  @IsOptional() @IsString() title?: string;
+  @IsOptional() @IsString() body?: string;
+  @IsOptional() @IsEnum(NotificationCategory) category?: NotificationCategory;
+  @IsOptional() @IsEnum(NotificationPriority) priority?: NotificationPriority;
+}

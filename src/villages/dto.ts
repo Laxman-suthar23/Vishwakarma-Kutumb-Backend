@@ -6,6 +6,7 @@ export class CreateVillageDto {
   @IsString() district: string;
   @IsString() state: string;
   @IsOptional() @IsString() adminName?: string;
+  @IsOptional() @IsString() coverImageUrl?: string;
 }
 
 export class UpdateVillageDto {
@@ -15,6 +16,7 @@ export class UpdateVillageDto {
   @IsOptional() @IsString() state?: string;
   @IsOptional() @IsString() adminName?: string;
   @IsOptional() @IsString() description?: string;
+  @IsOptional() @IsString() coverImageUrl?: string;
   @IsOptional() @IsInt() establishedYear?: number;
   @IsOptional() @IsBoolean() active?: boolean;
 }

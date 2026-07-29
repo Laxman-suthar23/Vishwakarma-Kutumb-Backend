@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateNotificationDto } from './dto';
+import { CreateNotificationDto, UpdateNotificationDto } from './dto';
 
 type NotificationWithReads = Prisma.NotificationGetPayload<{ include: { reads: true } }>;
 
@@ -36,5 +36,13 @@ export class NotificationsService {
       update: {},
       create: { notificationId: id, userId },
     });
+  }
+
+  update(id: string, dto: UpdateNotificationDto) {
+    return this.prisma.notification.update({ where: { id }, data: dto });
+  }
+
+  remove(id: string) {
+    return this.prisma.notification.delete({ where: { id } });
   }
 }

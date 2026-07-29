@@ -19,6 +19,13 @@ enum Gender {
   other
 }
 
+enum MaritalStatus {
+  single
+  married
+  divorced
+  widowed
+}
+
 enum NotificationCategory {
   announcement
   event
@@ -69,6 +76,8 @@ enum PaymentMethod {
 model User {
   id            String    @id @default(cuid())
   phone         String    @unique
+  email         String?   @unique
+  password      String?
   name          String
   role          UserRole  @default(member)
   active        Boolean   @default(true)
@@ -76,6 +85,7 @@ model User {
   village       Village?  @relation(fields: [villageId], references: [id])
   familyId      String?
   family        Family?   @relation(fields: [familyId], references: [id])
+  avatarUrl     String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -128,10 +138,12 @@ model Family {
   id           String    @id @default(cuid())
   villageId    String
   village      Village   @relation(fields: [villageId], references: [id])
-  surname      String
+  headName     String    @map("surname") // Maps frontend 'headName' conceptually or keep surname
+  headPhone    String?
   address      String?
   photoUrl     String?
   headMemberId String?
+  memberCount  Int       @default(0)
   deletedAt    DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
@@ -151,9 +163,14 @@ model Member {
   name        String
   gender      Gender
   age         Int?
+  dob         String?
   relation    String
+  maritalStatus MaritalStatus?
+  education   String?
   occupation  String?
+  caste       String?
   phone       String?
+  email       String?
   photoUrl    String?
   isFamilyHead Boolean  @default(false)
   deletedAt   DateTime?
@@ -222,9 +239,11 @@ model Advertisement {
   product      AdProduct
   status       AdStatus  @default(draft)
   imageUrl     String?
+  socialUrl    String?
   villageId    String?
   village      Village?  @relation(fields: [villageId], references: [id])
   price        Int
+  durationDays Int?
   startDate    DateTime?
   endDate      DateTime?
   createdAt    DateTime  @default(now())

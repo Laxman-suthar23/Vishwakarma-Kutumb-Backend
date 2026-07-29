@@ -6,7 +6,6 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { VillagesService } from './villages.service';
 import { CreateVillageDto, UpdateVillageDto } from './dto';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('villages')
 export class VillagesController {
   constructor(private villagesService: VillagesService) {}
@@ -16,23 +15,27 @@ export class VillagesController {
     return this.villagesService.findAll(query);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.villagesService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.super_admin)
   @Post()
   create(@Body() dto: CreateVillageDto) {
     return this.villagesService.create(dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.super_admin)
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateVillageDto) {
     return this.villagesService.update(id, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.super_admin)
   @Patch(':id/toggle-active')
   toggleActive(@Param('id') id: string) {

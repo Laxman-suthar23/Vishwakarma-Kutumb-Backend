@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { AdminsService } from './admins.service';
-import { CreateAdminDto } from './dto';
+import { CreateAdminDto, UpdateAdminDto } from './dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.super_admin)
@@ -25,5 +25,15 @@ export class AdminsController {
   @Patch(':id/toggle-active')
   toggleActive(@Param('id') id: string) {
     return this.adminsService.toggleActive(id);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.adminsService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateAdminDto) {
+    return this.adminsService.update(id, dto);
   }
 }

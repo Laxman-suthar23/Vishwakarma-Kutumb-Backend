@@ -5,9 +5,9 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.adPricing.createMany({
     data: [
-      { product: 'community_featured', label: 'Community Featured', price: 1999, durationDays: 30 },
-      { product: 'village_featured', label: 'Village Featured', price: 999, durationDays: 30 },
-      { product: 'community_listing', label: 'Community Listing', price: 499, durationDays: 30 },
+      { product: 'community_featured', label: 'Community Featured', price: 1, durationDays: 30 },
+      { product: 'village_featured', label: 'Village Featured', price: 1, durationDays: 30 },
+      { product: 'community_listing', label: 'Community Listing', price: 1, durationDays: 30 },
     ],
     skipDuplicates: true,
   });
@@ -85,7 +85,7 @@ async function main() {
   });
 
   const sutharFamily = await prisma.family.create({
-    data: { villageId: shahpura.id, surname: 'Suthar', address: 'Ward 4, Shahpura' },
+    data: { villageId: shahpura.id, headName: 'Suthar', address: 'Ward 4, Shahpura' },
   });
 
   const sutharHead = await prisma.member.create({
@@ -118,7 +118,7 @@ async function main() {
   });
 
   const bhavsarFamily = await prisma.family.create({
-    data: { villageId: shahpura.id, surname: 'Bhavsar', address: 'Ward 2, Shahpura' },
+    data: { villageId: shahpura.id, headName: 'Bhavsar', address: 'Ward 2, Shahpura' },
   });
   await prisma.member.create({
     data: {
@@ -134,7 +134,7 @@ async function main() {
   });
 
   const kumharFamily = await prisma.family.create({
-    data: { villageId: molela.id, surname: 'Kumhar', address: 'Main Road, Molela' },
+    data: { villageId: molela.id, headName: 'Kumhar', address: 'Main Road, Molela' },
   });
   await prisma.member.create({
     data: {
@@ -150,7 +150,7 @@ async function main() {
   });
 
   const vishwakarmaFamily = await prisma.family.create({
-    data: { villageId: kishangarh.id, surname: 'Vishwakarma', address: 'Station Road, Kishangarh' },
+    data: { villageId: kishangarh.id, headName: 'Vishwakarma', address: 'Station Road, Kishangarh' },
   });
   await prisma.member.create({
     data: {
@@ -245,6 +245,17 @@ async function main() {
         price: 499,
       },
     ],
+  });
+
+  await prisma.user.create({
+    data: {
+      phone: '9876543210',
+      email: 'admin@vishwakarma.com',
+      password: 'password123', // In a real app this would be hashed
+      name: 'Super Admin',
+      role: 'super_admin',
+      active: true,
+    }
   });
 
   console.log('Seed complete.');

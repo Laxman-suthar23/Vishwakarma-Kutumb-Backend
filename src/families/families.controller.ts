@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { FamiliesService } from './families.service';
-import { CreateFamilyDto } from './dto';
+import { CreateFamilyDto, UpdateFamilyDto } from './dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('families')
@@ -31,5 +31,11 @@ export class FamiliesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.familiesService.remove(id);
+  }
+
+  @Roles(UserRole.village_admin, UserRole.super_admin)
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateFamilyDto) {
+    return this.familiesService.update(id, dto);
   }
 }

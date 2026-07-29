@@ -6,7 +6,7 @@ export class VerifyOtpDto {
   phone: string;
 
   @IsString()
-  @Length(6, 6)
+  @Length(4, 4)
   otp: string;
 
   // Exists only so the still-mock-auth RN client can preview all three role

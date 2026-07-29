@@ -22,7 +22,12 @@ export class MembersService {
   }
 
   async findOne(id: string) {
-    const member = await this.prisma.member.findFirst({ where: { id, deletedAt: null } });
+    const member = await this.prisma.member.findFirst({ 
+      where: { id, deletedAt: null },
+      include: {
+        village: { select: { name: true, nameLocal: true } }
+      }
+    });
     if (!member) throw new NotFoundException('Member not found');
     return member;
   }

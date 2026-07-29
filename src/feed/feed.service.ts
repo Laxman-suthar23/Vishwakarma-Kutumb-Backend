@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateFeedDto, UpdateFeedDto } from './dto';
 
 type FeedPostWithLikes = Prisma.FeedPostGetPayload<{ include: { likes: true } }>;
 
@@ -34,5 +35,17 @@ export class FeedService {
       where: { id: postId },
       data: { likeCount: { increment: 1 } },
     });
+  }
+
+  create(dto: CreateFeedDto) {
+    return this.prisma.feedPost.create({ data: dto });
+  }
+
+  update(id: string, dto: UpdateFeedDto) {
+    return this.prisma.feedPost.update({ where: { id }, data: dto });
+  }
+
+  remove(id: string) {
+    return this.prisma.feedPost.delete({ where: { id } });
   }
 }

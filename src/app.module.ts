@@ -15,6 +15,7 @@ import { AdminsModule } from './admins/admins.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PricingModule } from './pricing/pricing.module';
 import { PlatformSettingsModule } from './platform-settings/platform-settings.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PlatformSettingsModule } from './platform-settings/platform-settings.mo
     PaymentsModule,
     PricingModule,
     PlatformSettingsModule,
+    SearchModule,
   ],
   providers: [
     // Basic rate limiting per PRODUCT_BIBLE.md §15 Performance / §14 Security
